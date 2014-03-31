@@ -1,4 +1,6 @@
 class bind (
+    $chroot_enable      = $bind::params::chroot_enable,
+    $chroot_dir         = $bind::params::chroot_dir,
     $confdir            = $bind::params::confdir,
     $cachedir           = $bind::params::cachedir,
     $bind_user          = $bind::params::bind_user,
@@ -14,6 +16,8 @@ class bind (
     $version            = $bind::params::version,
 ) inherits bind::params {
 
+    validate_bool($chroot_enable)
+    validate_absolute_path($chroot_dir)
     validate_absolute_path($confdir)
     validate_absolute_path($cachedir)
     validate_string($bind_user)

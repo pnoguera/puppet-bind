@@ -1,12 +1,21 @@
 class bind::config inherits bind {
 
     #$auth_nxdomain = false
-    
+    $defaults = $chroot_enable ? {
+        true      => "RESOLVCONF=no\nOPTIONS=\"-u bind -t ${chroot_dir}\"\n",
+        defaults  => "RESOLVCONF=no\nOPTIONS=\"-u bind\n"
+    }
+
     File {
         ensure  => present,
         owner   => 'root',
         group   => $bind_group,
         mode    => 0644,
+    }
+
+    file { "/etc/default/${service_name}":
+        ensure  => 'present',
+        content => $defaults
     }
 
     file { [
