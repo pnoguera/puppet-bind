@@ -10,7 +10,7 @@ define bind::key (
         group   => $group,
         mode    => '0640',
         content => template('bind/key.conf.erb'),
-        notify  => Service[$bind::bind_service],
+        notify  => Service['bind'],
         require => Package['bind'],
     }
     concat::fragment { "bind-key-${name}":

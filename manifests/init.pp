@@ -1,106 +1,36 @@
 class bind (
-    $package            = $bind::params::package_name,
-    $package_ensure     = $bind::params::package_ensure,
     $confdir            = $bind::params::confdir,
     $cachedir           = $bind::params::cachedir,
-    $bind_service       = $bind::params::bind_service,
     $bind_user          = $bind::params::bind_user,
     $bind_group         = $bind::params::bind_group,
-    $forwarders         = '',
-    $dnssec             = false,
-    $version            = '',
+    $dnssec             = $bind::params::dnssec,
+    $forwarders         = bind::params::forwarders,
+    $package_name       = $bind::params::package_name,
+    $package_ensure     = $bind::params::package_ensure,
+    $service_enable     = $bind::params::service_enable,
+    $service_ensure     = $bind::params::service_ensure,
+    $service_manage     = $bind::params::service_manage,
+    $service_name       = $bind::params::service_name,
+    $version            = $bind::params::version,
 ) inherits bind::params {
 
-    $auth_nxdomain = false
+    validate_absolute_path($confdir)
+    validate_absolute_path($cachedir)
+    validate_string($bind_user)
+    validate_string($bind_group)
+    validate_bool($dnssec)
+    validate_array($forwarders)
+    validate_string($package_name)
+    validate_string($package_ensure)
+    validate_bool($service_enable)
+    validate_string($service_ensure)
+    validate_bool($service_manage)
+    validate_string($service_name)
+    validate_string($version)
 
-    package { 'bind':
-        ensure  => $package_ensure,
-        name    => $package_name,
-    }
-
-    if $dnssec {
-        file { '/usr/local/bin/dnssec-init':
-            ensure => present,
-            owner  => 'root',
-            group  => 'root',
-            mode   => '0755',
-            source => 'puppet:///modules/bind/dnssec-init',
-        }
-    }
-
-    service { $bind::params::bind_service:
-        ensure     => running,
-        enable     => true,
-        hasrestart => true,
-        hasstatus  => true,
-        require    => Package['bind'],
-    }
-
-    File {
-        ensure  => present,
-        owner   => 'root',
-        group   => $bind_group,
-        mode    => 0644,
-    }
-
-    file { [ $confdir, "${confdir}/zones" ]:
-        ensure  => directory,
-        mode    => '2755',
-        purge   => true,
-        recurse => true,
-        require => Package['bind'],
-    }
-
-    file { "${confdir}/named.conf":
-        content => template('bind/named.conf.erb'),
-        notify  => Service[$bind_service],
-        require => Package['bind'],
-    }
-
-    file { "${confdir}/keys":
-        ensure  => directory,
-        mode    => '0755',
-        require => Package['bind'],
-    }
-
-    file { "${confdir}/named.conf.local":
-        replace => false,
-        require => Package['bind'],
-    }
-
-    concat { [
-        "${confdir}/acls.conf",
-        "${confdir}/keys.conf",
-        "${confdir}/views.conf",
-        ]:
-        owner   => 'root',
-        group   => $bind_group,
-        mode    => '0644',
-        notify  => Service[$bind_service],
-        require => Package['bind'],
-    }
-
-    concat::fragment { 'named-acls-header':
-        order   => '00',
-        target  => "${confdir}/acls.conf",
-        content => "# This file is managed by puppet - changes will be lost\n",
-    }
-
-    concat::fragment { 'named-keys-header':
-        order   => '00',
-        target  => "${confdir}/keys.conf",
-        content => "# This file is managed by puppet - changes will be lost\n",
-    }
-
-    concat::fragment { 'named-keys-rndc':
-        order   => '99',
-        target  => "${confdir}/keys.conf",
-        content => "#include \"${confdir}/rndc.key\"\n",
-    }
-
-    concat::fragment { 'named-views-header':
-        order   => '00',
-        target  => "${confdir}/views.conf",
-        content => "# This file is managed by puppet - changes will be lost\n",
-    }
+    anchor { 'bind::begin': } ->
+    class { '::bind::install': } ->
+    class { '::bind::config': } ~>
+    class { '::bind::service': } ->
+    anchor { 'bind::end': }
 }

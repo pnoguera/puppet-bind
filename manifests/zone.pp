@@ -74,7 +74,7 @@ define bind::zone (
         group   => $bind::bind_group,
         mode    => '0644',
         content => template('bind/zone.conf.erb'),
-        notify  => Service[$bind::bind_service],
+        notify  => Service['bind'],
         require => Package['bind'],
     }
 

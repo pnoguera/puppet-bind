@@ -1,30 +1,22 @@
-class bind::params {
+class bind::params (
+    $dnssec         = false,
+    $forwarders     = '',
+    $package_ensure = 'latest',
+    $service_enable = true,
+    $service_ensure = 'running',
+    $service_manage = true,
+    $version        = '',
+){
 
     case $::osfamily {
         'Debian': {
-            $package_name   = 'bind9'
-            $package_ensure = 'latest'
-            $bind_service   = 'bind9'
-            $confdir        = '/etc/bind'
-            $cachedir       = '/var/cache/bind'
             $bind_user      = 'bind'
             $bind_group     = 'bind'
+            $package_name   = 'bind9'
+            $confdir        = '/etc/bind'
+            $cachedir       = '/var/cache/bind'
+            $service_name   = 'bind9'
 
-            file { [
-                "${confdir}/bind.keys",
-                "${confdir}/db.empty",
-                "${confdir}/db.local",
-                "${confdir}/db.root",
-                "${confdir}/db.0",
-                "${confdir}/db.127",
-                "${confdir}/db.255",
-                "${confdir}/named.conf.default-zones",
-                "${confdir}/rndc.key",
-                "${confdir}/zones.rfc1918",
-                ]:
-                ensure  => present,
-                require => Package['bind'],
-            }
         }
         default: {
             fail("Operating system is not supported ${::osfamily}")
