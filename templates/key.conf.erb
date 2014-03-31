@@ -3,3 +3,7 @@ key <%= @name %> {
 	algorithm <%= @algorithm %>;
 	secret "<%= @secret %>";
 };
+
+<%- Array(@servers).each do |server| -%>
+server	<%= server %> { keys "<%= name %>";};
+<%- end -%>

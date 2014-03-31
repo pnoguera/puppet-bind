@@ -1,8 +1,9 @@
 define bind::key (
     $secret,
-    $algorithm = 'hmac-sha256',
-    $owner     = 'root',
-    $group     = $bind::bind_group,
+    $algorithm  = 'hmac-sha256',
+    $owner      = 'root',
+    $group      = $bind::bind_group,
+    $servers     = [''],
 ) {
     file { "${bind::confdir}/keys/${name}":
         ensure  => present,
@@ -11,7 +12,7 @@ define bind::key (
         mode    => '0640',
         content => template('bind/key.conf.erb'),
         notify  => Service['bind'],
-        require => Package['bind'],
+        require => Class['::bind::config'],
     }
     concat::fragment { "bind-key-${name}":
         order   => '10',
