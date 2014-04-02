@@ -12,6 +12,7 @@ define bind::zone (
     $forwarders      = '',
     $forward         = '',
 ) {
+
     $cachedir = $::bind::cachedir
 
     if $domain == '' {
@@ -29,15 +30,15 @@ define bind::zone (
     }
 
     if $has_zone_file {
-        file { "${cachedir}/${name}":
+        file { "${::bind::cachedir_abs}/${name}":
             ensure  => directory,
             owner   => $bind::bind_user,
             group   => $bind::bind_group,
             mode    => '0755',
-            require => Package['bind'],
+            require => Class['::bind::config'],
         }
 
-        file { "${cachedir}/${name}/${_domain}":
+        file { "${::bind::cachedir_abs}/${name}/${_domain}":
             ensure  => present,
             owner   => $bind::bind_user,
             group   => $bind::bind_group,
@@ -49,17 +50,17 @@ define bind::zone (
 
         if $dnssec {
             exec { "dnssec-keygen-${name}":
-                command => "/usr/local/bin/dnssec-init '${cachedir}' '${name}' \
+                command => "/usr/local/bin/dnssec-init '${::bind::cachedir_abs}' '${name}' \
                             '${_domain}' '${key_directory}'",
-                cwd     => $cachedir,
+                cwd     => $::bind::cachedir_abs,
                 user    => $bind::bind_user,
-                creates => "${cachedir}/${name}/${_domain}.signed",
+                creates => "${::bind::cachedir_abs}/${name}/${_domain}.signed",
                 timeout => 0, # crypto is hard
                 require => [ File['/usr/local/bin/dnssec-init'],
-                            File["${cachedir}/${name}/${_domain}"] ],
+                            File["${::bind::cachedir_abs}/${name}/${_domain}"] ],
             }
 
-            file { "${cachedir}/${name}/${_domain}.signed":
+            file { "${::bind::cachedir_abs}/${name}/${_domain}.signed":
                 owner => $bind::bind_user,
                 group => $bind::bind_group,
                 mode  => '0644',
@@ -68,14 +69,14 @@ define bind::zone (
         }
     }
 
-    file { "${bind::confdir}/zones/${name}.conf":
+    file { "${::bind::confdir_abs}/zones/${name}.conf":
         ensure  => present,
         owner   => 'root',
         group   => $bind::bind_group,
         mode    => '0644',
         content => template('bind/zone.conf.erb'),
         notify  => Service['bind'],
-        require => Package['bind'],
+        require => Class['::bind::config'],
     }
 
 }

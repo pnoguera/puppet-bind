@@ -16,8 +16,6 @@ class bind::install inherits bind {
     }
 
     if $chroot_enable == true {
-        $confdir_chroot  = "${chroot_dir}/${confdir}"
-        $cachedir_chroot = "${chroot_dir}/${cachedir}"
 
         exec { 'Stop bind':
             command     => "/etc/init.d/${service_name} stop",
@@ -30,9 +28,11 @@ class bind::install inherits bind {
             owner   => $bind_owner,
             group   => $bind_group,
             mode    => '770',
-            require => Package['bind']
+            #require => Package['bind']
             #require => Exec['Stop bind'],
         }
+
+        Package['bind'] ->
 
         file { $chroot_dir : } ->
 
@@ -51,25 +51,13 @@ class bind::install inherits bind {
 
         file { "${chroot_dir}/var/run/named": } ->
 
-        exec { "mv ${confdir} ${confdir_chroot}":
-            unless  => "test -d ${confdir_chroot}",
-            require => Package['bind'],
+        exec { "mv ${confdir} ${confdir_abs}":
+            unless  => "test -d ${confdir_abs}",
         } ->
 
-        exec { 'symlink confdir':
-            command => "ln -s ${confdir_chroot} ${confdir}",
-            unless  => "file -L ${confdir}",
-        } ->
-
-        exec { "mv ${cachedir} ${cachedir_chroot}":
-            unless  => "test -d ${cachedir_chroot}",
-            require => Package['bind'],
-        } ->
-
-        exec { 'symlink cachedir':
-            command => "ln -s ${cachedir_chroot} ${cachedir}",
-            unless  => "file -L ${cachedir}",
-        }
+        exec { "mv ${cachedir} ${cachedir_abs}":
+            unless  => "test -d ${cachedir_abs}",
+        } 
 
         exec { "mknod ${chroot_dir}/dev/null c 1 3":
             unless  => "test -c ${chroot_dir}/dev/null",

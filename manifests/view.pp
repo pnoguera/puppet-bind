@@ -4,11 +4,12 @@ define bind::view (
     $zones              = [],
     $recursion          = true,
 ) {
+
     $confdir = $bind::confdir
 
     concat::fragment { "bind-view-${name}":
         order   => '10',
-        target  => "${bind::confdir}/views.conf",
+        target  => "${bind::confdir_abs}/views.conf",
         content => template('bind/view.erb'),
     }
 }

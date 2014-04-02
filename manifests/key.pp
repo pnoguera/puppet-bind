@@ -5,7 +5,7 @@ define bind::key (
     $group      = $bind::bind_group,
     $servers     = [''],
 ) {
-    file { "${bind::confdir}/keys/${name}":
+    file { "${bind::confdir_abs}/keys/${name}":
         ensure  => present,
         owner   => $owner,
         group   => $group,
@@ -16,7 +16,7 @@ define bind::key (
     }
     concat::fragment { "bind-key-${name}":
         order   => '10',
-        target  => "${bind::confdir}/keys.conf",
+        target  => "${bind::confdir_abs}/keys.conf",
         content => "include \"${bind::confdir}/keys/${name}\";\n",
     }
 }

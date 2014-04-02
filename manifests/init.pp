@@ -32,6 +32,16 @@ class bind (
     validate_string($service_name)
     validate_string($version)
 
+    $confdir_abs = $chroot_enable ? {
+        true        => "${chroot_dir}/${confdir}",
+        defaults    => $confdir, 
+    }
+
+    $cachedir_abs = $chroot_enable ? {
+        true        => "${chroot_dir}/${cachedir}",
+        defaults    => $cachedir, 
+    }
+
     anchor { 'bind::begin': } ->
     class { '::bind::install': } ->
     class { '::bind::config': } ~>
