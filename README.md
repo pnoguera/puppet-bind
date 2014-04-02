@@ -22,6 +22,7 @@ Setup
 * package installation and service control for BIND
 * configuration of the server, zones, acls, keys, and views
 * creation of TSIG and DNSSEC keys
+* creation of chroot environment if needed
 
 ###Getting started
 
@@ -36,14 +37,16 @@ Puppet code that uses anything from the BIND module requires that the core bind 
 `bind` provides a few parameters that control server-level configuration parameters in the `named.conf` file, and also defines the overall structure of DNS service on the node.
 
     class { 'bind':
-        confdir    => '/etc/bind',
-        cachedir   => '/var/lib/bind',
-        forwarders => [
+        chroot_enable   => true,
+        chroot_dir      => '/var/chroot/bind9',
+        confdir         => '/etc/bind',
+        cachedir        => '/var/lib/bind',
+        forwarders      => [
             '8.8.8.8',
             '8.8.4.4',
         ],
-        dnssec     => true,
-        version    => 'Controlled by Puppet',
+        dnssec          => true,
+        version         => 'Controlled by Puppet',
     }
 
 Puppet will manage the entire `named.conf` file and its includes.  Most parameters are set to a fixed value, but the server's upstream resolvers are controlled using `forwarders`, enabling of DNSSec signature validation is controlled using `dnssec`, and the reported version is controlled using `version`.  It is unlikely that you will need to define an alternate value for `confdir` or `cachedir`.
