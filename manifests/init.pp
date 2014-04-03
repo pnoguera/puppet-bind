@@ -6,7 +6,7 @@ class bind (
     $bind_user          = $bind::params::bind_user,
     $bind_group         = $bind::params::bind_group,
     $dnssec             = $bind::params::dnssec,
-    $forwarders         = bind::params::forwarders,
+    $forwarders         = $bind::params::forwarders,
     $package_name       = $bind::params::package_name,
     $package_ensure     = $bind::params::package_ensure,
     $service_enable     = $bind::params::service_enable,

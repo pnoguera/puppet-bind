@@ -1,7 +1,7 @@
 class bind::params (
     $chroot_enable  = false,
     $dnssec         = false,
-    $forwarders     = '',
+    $forwarders     = [''],
     $package_ensure = 'latest',
     $service_enable = true,
     $service_ensure = 'running',
