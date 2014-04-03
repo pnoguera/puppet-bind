@@ -8,3 +8,4 @@ description 'A Puppet module to deploy and manage the ISC BIND server'
 project_page 'https://github.com/pnoguera/puppet-bind'
 
 dependency 'puppetlabs/concat', '>= 1.0.0'
+dependency 'puppetlabs/stdlib', '>= 4.0.0'
