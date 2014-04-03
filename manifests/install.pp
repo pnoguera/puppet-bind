@@ -5,6 +5,12 @@ class bind::install inherits bind {
         name    => $package_name,
     }
 
+    if ! defined(Package['dnsutils']) {
+        package { 'dnsutils' :
+            ensure  => 'present',
+        }
+    }
+
     if $dnssec {
         file { '/usr/local/bin/dnssec-init':
             ensure => present,
