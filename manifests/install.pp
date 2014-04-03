@@ -40,22 +40,17 @@ class bind::install inherits bind {
 
         Package['bind'] ->
 
-        file { $chroot_dir : } ->
-
         file { [
+            $chroot_dir,
             "${chroot_dir}/etc",
             "${chroot_dir}/dev",
             "${chroot_dir}/var/",
+            "${chroot_dir}/var/run",
+            "${chroot_dir}/var/cache",
+            "${chroot_dir}/var/run/named",
             ]:
         } ->
 
-        file { [
-            "${chroot_dir}/var/run",
-            "${chroot_dir}/var/cache",
-            ]:
-        } -> 
-
-        file { "${chroot_dir}/var/run/named": } ->
 
         exec { "mv ${confdir} ${confdir_abs}":
             unless  => "test -d ${confdir_abs}",
