@@ -37,15 +37,17 @@ define bind::zone (
             mode    => '0755',
             require => Class['::bind::config'],
         }
-
-        file { "${::bind::cachedir_abs}/${name}/${_domain}":
-            ensure  => present,
-            owner   => $bind::bind_user,
-            group   => $bind::bind_group,
-            mode    => '0644',
-            replace => false,
-            source  => 'puppet:///modules/bind/db.empty',
-            audit   => [ content ],
+        
+        if $zone_type != 'slave' {
+            file { "${::bind::cachedir_abs}/${name}/${_domain}":
+                ensure  => present,
+                owner   => $bind::bind_user,
+                group   => $bind::bind_group,
+                mode    => '0644',
+                replace => false,
+                source  => 'puppet:///modules/bind/db.empty',
+                audit   => [ content ],
+            }
         }
 
         if $dnssec {
