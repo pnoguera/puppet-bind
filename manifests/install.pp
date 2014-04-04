@@ -41,6 +41,7 @@ class bind::install inherits bind {
         Package['bind'] ->
 
         file { [
+            '/var/chroot',
             $chroot_dir,
             "${chroot_dir}/etc",
             "${chroot_dir}/dev",
